@@ -16,6 +16,9 @@ test.describe('Open roles listing', () => {
         const grid = page.getByTestId('roles-grid');
         await expect(grid).toBeVisible();
         await expect(page.getByTestId('role-card')).toHaveCount(expectedRoleCount);
+        for (const card of await page.getByTestId('role-card').all()) {
+            await expect(card.getByTestId('role-location')).toHaveCount(1);
+        }
     });
 
     test('links through to a role detail page', async ({ page }) => {
@@ -31,14 +34,14 @@ test.describe('Open roles listing', () => {
         { title: 'Senior Frontend Engineer', location: 'Remote (US & Canada)' },
         { title: 'Financial Analyst', location: 'Woodinville, WA, USA' },
     ]) {
-        test(`keeps ${title} location on details, not starter cards`, async ({ page }) => {
+        test(`shows ${title} location on the card and details`, async ({ page }) => {
             await page.goto('/');
             const card = page.getByTestId('role-card').filter({
                 has: page.getByRole('heading', { name: title, exact: true }),
             });
 
             await expect(card).toBeVisible();
-            await expect(card.getByText(location, { exact: true })).toHaveCount(0);
+            await expect(card.getByTestId('role-location')).toHaveText(location);
             await card.click();
             await expect(page.getByText(location, { exact: true })).toBeVisible();
         });
